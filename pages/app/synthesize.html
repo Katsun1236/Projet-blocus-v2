@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synthèse IA - Projet Blocus</title>
+    <link rel="icon" type="image/png" href="../../assets/images/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body class="relative selection:bg-indigo-500 selection:text-white overflow-hidden h-screen flex bg-[#050505]">
+
+    <!-- Background -->
+    <div class="noise-overlay"></div>
+    <div class="glow-bg" style="top: -20%; left: 30%; background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);"></div>
+
+    <!-- SIDEBAR (Simplified) -->
+    <aside class="w-72 sidebar-glass flex-shrink-0 hidden md:flex flex-col z-20 border-r border-white/5">
+        <div class="p-6 flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 bg-white text-black rounded-lg flex items-center justify-center font-bold">B.</div>
+            <span class="font-display font-bold text-lg text-white">Projet Blocus</span>
+        </div>
+        <nav class="px-4 space-y-2">
+            <a href="dashboard.html" class="nav-item flex items-center px-4 py-3 text-gray-400 hover:text-white transition-colors"><i class="fas fa-th-large w-6"></i> Dashboard</a>
+            <a href="courses.html" class="nav-item flex items-center px-4 py-3 text-gray-400 hover:text-white transition-colors"><i class="fas fa-book w-6"></i> Mes Cours</a>
+            <a href="#" class="nav-item active bg-indigo-600/10 text-indigo-400 flex items-center px-4 py-3 rounded-lg"><i class="fas fa-magic w-6"></i> Synthétiseur</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="flex-grow flex flex-col min-w-0 relative z-10">
+        <main class="flex-grow p-6 md:p-10 overflow-y-auto">
+            <!-- Setup Section -->
+            <section id="synthesis-setup-section" class="max-w-3xl mx-auto">
+                <div class="text-center mb-10">
+                    <h1 class="text-3xl font-display font-bold text-white mb-2">Générateur de Synthèse IA</h1>
+                    <p class="text-gray-400">Sélectionne tes cours et laisse Gemini créer le résumé parfait.</p>
+                </div>
+
+                <div class="content-glass rounded-3xl p-8 border border-gray-800">
+                    <form id="synthesis-form" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-300 mb-2">1. Titre</label>
+                            <input type="text" id="synthesis-title" class="w-full px-4 py-3 bg-gray-800 rounded-xl border border-gray-700 text-white focus:border-indigo-500 outline-none" placeholder="Titre de la synthèse" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-300 mb-2">2. Sources (Cours analysés)</label>
+                            <select id="course-select" multiple class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 text-white focus:border-indigo-500 outline-none h-40" required>
+                                <option disabled>Chargement des cours...</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1 text-right">Maintenir Ctrl/Cmd pour sélectionner plusieurs</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-300 mb-2">3. Longueur</label>
+                                <select id="word-count" class="w-full px-4 py-3 bg-gray-800 rounded-xl border border-gray-700 text-white outline-none">
+                                    <option value="300">Court (~300 mots)</option>
+                                    <option value="600" selected>Moyen (~600 mots)</option>
+                                    <option value="1000">Long (~1000 mots)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-300 mb-2">4. Style</label>
+                                <select id="style-select" class="w-full px-4 py-3 bg-gray-800 rounded-xl border border-gray-700 text-white outline-none">
+                                    <option value="Standard">Standard</option>
+                                    <option value="Bullet Points">Points Clés (Listes)</option>
+                                    <option value="ELI5">Vulgarisé (Simple)</option>
+                                    <option value="Academic">Académique</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="generate-btn" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-magic"></i> Générer
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Result Section -->
+            <section id="result-section" class="hidden max-w-4xl mx-auto">
+                <button id="back-btn" class="mb-4 text-gray-400 hover:text-white flex items-center gap-2"><i class="fas fa-arrow-left"></i> Retour</button>
+                <div class="content-glass rounded-3xl border border-gray-800 overflow-hidden">
+                    <div class="p-6 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
+                        <h2 id="result-title" class="text-xl font-bold text-white">Synthèse</h2>
+                        <button id="download-pdf" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-lg transition-colors">
+                            <i class="fas fa-download mr-2"></i> PDF
+                        </button>
+                    </div>
+                    <div id="result-content" class="p-8 prose prose-invert max-w-none text-gray-300 leading-relaxed"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module">
+        import { auth, db } from '../../assets/js/config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { generateSynthesis } from '../../assets/js/ai.js';
+
+        let userCourses = [];
+        const ui = {
+            form: document.getElementById('synthesis-form'),
+            courseSelect: document.getElementById('course-select'),
+            generateBtn: document.getElementById('generate-btn'),
+            setupSection: document.getElementById('synthesis-setup-section'),
+            resultSection: document.getElementById('result-section'),
+            resultContent: document.getElementById('result-content'),
+            resultTitle: document.getElementById('result-title'),
+            backBtn: document.getElementById('back-btn'),
+            downloadPdf: document.getElementById('download-pdf')
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const snap = await getDocs(collection(db, 'users', user.uid, 'courses'));
+                userCourses = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                
+                ui.courseSelect.innerHTML = userCourses.length 
+                    ? userCourses.map(c => `<option value="${c.id}">${c.title}</option>`).join('')
+                    : '<option disabled>Aucun cours disponible (texte manquant)</option>';
+            } else {
+                window.location.href = '../auth/login.html';
+            }
+        });
+
+        ui.form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const selectedIds = Array.from(ui.courseSelect.selectedOptions).map(o => o.value);
+            if(selectedIds.length === 0) return alert("Sélectionnez un cours.");
+
+            // Combine text content from selected courses (stored in Firestore)
+            const combinedText = selectedIds.map(id => {
+                const c = userCourses.find(x => x.id === id);
+                return c.textContent ? `--- ${c.title} ---\n${c.textContent}` : '';
+            }).join('\n\n');
+
+            if(!combinedText.trim()) return alert("Les cours sélectionnés ne contiennent pas de texte analysable.");
+
+            ui.generateBtn.disabled = true;
+            ui.generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération en cours...';
+
+            try {
+                const title = document.getElementById('synthesis-title').value;
+                const style = document.getElementById('style-select').value;
+                const words = document.getElementById('word-count').value;
+
+                const htmlContent = await generateSynthesis(combinedText, style, words);
+                
+                // Save
+                await addDoc(collection(db, 'users', auth.currentUser.uid, 'syntheses'), {
+                    title,
+                    content: htmlContent,
+                    createdAt: serverTimestamp()
+                });
+
+                ui.resultTitle.textContent = title;
+                ui.resultContent.innerHTML = htmlContent;
+                
+                ui.setupSection.classList.add('hidden');
+                ui.resultSection.classList.remove('hidden');
+
+            } catch (error) {
+                console.error(error);
+                alert("Erreur de génération. Vérifiez votre clé API ou connexion.");
+            } finally {
+                ui.generateBtn.disabled = false;
+                ui.generateBtn.innerHTML = '<i class="fas fa-magic"></i> Générer';
+            }
+        });
+
+        ui.backBtn.addEventListener('click', () => {
+            ui.resultSection.classList.add('hidden');
+            ui.setupSection.classList.remove('hidden');
+        });
+
+        ui.downloadPdf.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text(ui.resultTitle.textContent, 10, 10);
+            // Simplistic text extraction for PDF demo
+            const text = ui.resultContent.innerText; 
+            const splitText = doc.splitTextToSize(text, 180);
+            doc.text(splitText, 10, 20);
+            doc.save('synthese.pdf');
+        });
+    </script>
+</body>
+</html>

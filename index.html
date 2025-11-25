@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projet Blocus | Hack tes études</title>
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+  }
+}
+</script>
+</head>
+<body class="relative bg-[#050505] text-white selection:bg-indigo-500 selection:text-white">
+
+    <div class="noise-overlay"></div>
+    <div class="glow-bg" style="top: -20%; left: -10%; background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);"></div>
+    <div class="glow-bg" style="bottom: 10%; right: -10%; background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%);"></div>
+
+    <nav class="fixed top-0 w-full z-50 glass-nav transition-all duration-300 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group z-50">
+                <div class="w-9 h-9 bg-white text-black rounded-lg flex items-center justify-center font-bold text-xl tracking-tighter group-hover:rotate-12 transition-transform">B.</div>
+                <span class="font-display font-bold text-lg tracking-wide text-white">Projet Blocus</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-8">
+                <!-- Menu Visiteur -->
+                <div id="nav-logged-out" class="flex items-center gap-8">
+                    <a href="#features" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Concept</a>
+                    <div class="flex items-center gap-4 pl-4 border-l border-gray-800">
+                        <a href="pages/auth/login.html" class="text-sm font-medium text-white hover:text-indigo-400 transition-colors">Connexion</a>
+                        <a href="pages/auth/register.html" class="group px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+                            <span>S'inscrire</span>
+                            <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Menu Connecté -->
+                <div id="nav-logged-in" class="hidden items-center gap-6">
+                    <a href="pages/app/dashboard.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Mon Espace</a>
+                    <button id="logout-btn" class="text-sm text-red-400 hover:text-white">Déconnexion</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative pt-32 lg:pt-48 px-6 overflow-hidden min-h-screen flex flex-col justify-center">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div class="relative z-10 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-800 bg-gray-900/50 backdrop-blur-md mb-8 animate-float">
+                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span></span>
+                    <span class="text-xs font-mono text-indigo-300 font-bold tracking-wider">SYSTEME V2.0 ONLINE</span>
+                </div>
+                
+                <h1 class="text-5xl sm:text-7xl font-display font-bold leading-[0.95] mb-8 text-white">
+                    Hack tes <br><span class="reveal-text bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">examens.</span>
+                </h1>
+                
+                <p class="text-lg text-gray-400 max-w-lg mx-auto lg:mx-0 mb-10 leading-relaxed">
+                    L'outil ultime qui transforme le chaos de tes notes en une machine à réussir. 
+                    <span class="text-gray-200 font-medium">Synthèses IA, Quiz instantanés.</span>
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                    <div id="hero-logged-out" class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                        <a href="pages/auth/register.html" class="px-8 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all transform hover:-translate-y-1 shadow-lg">Commencer</a>
+                    </div>
+                    <div id="hero-logged-in" class="hidden w-full sm:w-auto">
+                        <a href="pages/app/dashboard.html" class="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-3 transform hover:-translate-y-1">
+                            <i class="fas fa-rocket"></i> Lancer la session
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Visuals -->
+            <div class="relative h-[500px] w-full hidden lg:block">
+                <div class="absolute top-10 left-10 w-80 bg-gray-900/80 backdrop-blur-xl border border-gray-700 rounded-2xl p-6 shadow-2xl animate-float z-20">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400"><i class="fas fa-file-alt"></i></div>
+                        <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">Synthèse terminée</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="h-2 w-3/4 bg-gray-700 rounded"></div>
+                        <div class="h-2 w-1/2 bg-gray-700 rounded"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { auth } from './assets/js/config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+        const dom = {
+            navLoggedOut: document.getElementById('nav-logged-out'),
+            navLoggedIn: document.getElementById('nav-logged-in'),
+            heroLoggedOut: document.getElementById('hero-logged-out'),
+            heroLoggedIn: document.getElementById('hero-logged-in'),
+            logoutBtn: document.getElementById('logout-btn')
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                dom.navLoggedOut.classList.add('hidden');
+                dom.navLoggedIn.classList.remove('hidden');
+                dom.navLoggedIn.classList.add('flex');
+                
+                dom.heroLoggedOut.classList.add('hidden');
+                dom.heroLoggedIn.classList.remove('hidden');
+            } else {
+                dom.navLoggedIn.classList.add('hidden');
+                dom.navLoggedOut.classList.remove('hidden');
+                
+                dom.heroLoggedIn.classList.add('hidden');
+                dom.heroLoggedOut.classList.remove('hidden');
+            }
+        });
+
+        if(dom.logoutBtn) {
+            dom.logoutBtn.addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
+        }
+    </script>
+</body>
+</html>

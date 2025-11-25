@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uploader un cours - Projet Blocus</title>
+    <link rel="icon" type="image/png" href="../../assets/images/logo.png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PDF.js (Version stable) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body class="relative selection:bg-indigo-500 selection:text-white overflow-hidden h-screen flex bg-[#050505]">
+
+    <!-- Background -->
+    <div class="noise-overlay"></div>
+    <div class="glow-bg" style="top: -20%; left: 30%; background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);"></div>
+    <div class="glow-bg" style="bottom: -10%; right: -10%; background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="w-72 sidebar-glass flex-shrink-0 hidden md:flex flex-col z-20 relative">
+        <div class="p-6 flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 bg-white text-black rounded-lg flex items-center justify-center font-bold text-lg tracking-tighter">B.</div>
+            <span class="font-display font-bold text-lg tracking-wide text-white">Projet Blocus</span>
+        </div>
+        <nav class="flex-grow px-4 space-y-2 overflow-y-auto custom-scrollbar">
+            <a href="dashboard.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-th-large w-6 group-hover:text-indigo-400 transition-colors"></i><span class="font-medium">Dashboard</span>
+            </a>
+            <a href="courses.html" class="nav-item active flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-book w-6 group-hover:text-indigo-400 transition-colors"></i><span class="font-medium">Mes Cours</span>
+            </a>
+            <a href="quiz.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-brain w-6 group-hover:text-purple-400 transition-colors"></i><span class="font-medium">Quiz IA</span>
+            </a>
+            <a href="synthesize.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-magic w-6 group-hover:text-indigo-400 transition-colors"></i><span class="font-medium">Synthétiseur</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-gray-800">
+            <button id="logout-button" class="w-full flex items-center px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors group">
+                <i class="fas fa-sign-out-alt w-6 group-hover:text-red-500 transition-colors"></i><span class="font-medium">Déconnexion</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="flex-grow flex flex-col min-w-0 relative z-10">
+        <header class="h-20 border-b border-gray-800/50 flex items-center justify-between px-8 bg-gray-900/30 backdrop-blur-sm">
+            <div class="flex items-center gap-4 md:hidden">
+                <button class="text-gray-400 hover:text-white"><i class="fas fa-bars text-xl"></i></button>
+                <span class="font-bold text-lg text-white">Upload</span>
+            </div>
+        </header>
+
+        <main class="flex-grow p-6 md:p-10 overflow-y-auto flex flex-col items-center justify-center">
+            <div class="w-full max-w-3xl">
+                <div class="content-glass rounded-3xl p-8 md:p-12 border border-gray-800 shadow-2xl">
+                    <div class="text-center mb-10">
+                        <div class="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-500/20">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-indigo-400"></i>
+                        </div>
+                        <h1 class="text-3xl font-display font-bold text-white mb-2">Importer un fichier</h1>
+                        <p class="text-gray-400">PDF uniquement. Le texte sera extrait pour l'IA.</p>
+                    </div>
+
+                    <form id="upload-form" class="space-y-8">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2 ml-1">Nom du cours</label>
+                            <input type="text" id="courseName" class="w-full px-5 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Ex: Histoire - Chapitre 1" required>
+                        </div>
+
+                        <div id="drop-zone" class="drop-zone rounded-2xl p-10 text-center hover:bg-gray-800/30 transition-all group relative overflow-hidden border-2 border-dashed border-gray-700">
+                            <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".pdf">
+                            <div class="relative z-0">
+                                <i class="fas fa-file-pdf text-5xl text-gray-600 group-hover:text-indigo-400 transition-colors mb-4"></i>
+                                <p class="text-lg font-medium text-white mb-1">Glisse ton PDF ici</p>
+                                <span class="px-4 py-2 bg-gray-700 group-hover:bg-gray-600 text-white text-sm font-bold rounded-lg transition-colors inline-block">Choisir un fichier</span>
+                            </div>
+                        </div>
+
+                        <div id="preview-container" class="hidden bg-gray-900/50 rounded-xl p-6 border border-gray-800 flex items-center gap-4">
+                            <i class="fas fa-file-pdf text-3xl text-red-500"></i>
+                            <div class="flex-1 min-w-0">
+                                <p id="file-name-preview" class="text-white font-bold truncate"></p>
+                                <p id="file-size-preview" class="text-xs text-gray-500"></p>
+                            </div>
+                            <button type="button" id="remove-file-btn" class="text-red-400 hover:text-white"><i class="fas fa-times"></i></button>
+                        </div>
+
+                        <div id="progress-container" class="hidden">
+                            <div class="flex justify-between text-xs text-gray-400 mb-2">
+                                <span id="status-text">Upload en cours...</span>
+                                <span id="progress-text">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+                                <div id="progress-bar" class="bg-indigo-500 h-2 rounded-full transition-all duration-300 w-0"></div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submit-button" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" disabled>
+                            <span>Uploader et Analyser</span>
+                            <i class="fas fa-magic"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="message-box" class="hidden fixed bottom-6 right-6 bg-gray-900 border border-gray-700 text-white p-4 rounded-xl shadow-2xl z-50 flex items-center gap-3"></div>
+
+    <script type="module">
+        import { auth, db, storage } from '../../assets/js/config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { doc, setDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+
+        let currentUserId = null;
+        let selectedFile = null;
+        let extractedText = "";
+
+        const ui = {
+            dropZone: document.getElementById('drop-zone'),
+            fileInput: document.getElementById('file-input'),
+            submitButton: document.getElementById('submit-button'),
+            uploadForm: document.getElementById('upload-form'),
+            progressBar: document.getElementById('progress-bar'),
+            progressText: document.getElementById('progress-text'),
+            statusText: document.getElementById('status-text'),
+            progressContainer: document.getElementById('progress-container'),
+            previewContainer: document.getElementById('preview-container'),
+            removeFileBtn: document.getElementById('remove-file-btn'),
+            courseNameInput: document.getElementById('courseName'),
+            messageBox: document.getElementById('message-box')
+        };
+
+        function showMessage(msg, isError = false) {
+            ui.messageBox.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle text-red-500' : 'fa-check-circle text-green-500'}"></i><span>${msg}</span>`;
+            ui.messageBox.classList.remove('hidden');
+            setTimeout(() => ui.messageBox.classList.add('hidden'), 4000);
+        }
+
+        onAuthStateChanged(auth, u => u ? currentUserId = u.uid : window.location.href = '../auth/login.html');
+        document.getElementById('logout-button').addEventListener('click', () => signOut(auth).then(() => window.location.href = '../../index.html'));
+
+        // PDF Text Extraction using PDF.js
+        async function extractPdfText(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                fullText += textContent.items.map(item => item.str).join(' ') + "\n";
+            }
+            return fullText;
+        }
+
+        ui.fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file && file.type === "application/pdf") {
+                selectedFile = file;
+                document.getElementById('file-name-preview').textContent = file.name;
+                document.getElementById('file-size-preview').textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                
+                ui.previewContainer.classList.remove('hidden');
+                ui.dropZone.classList.add('hidden');
+                
+                if(!ui.courseNameInput.value) ui.courseNameInput.value = file.name.replace('.pdf','');
+
+                // Start extraction immediately for UX
+                ui.submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyse du PDF...';
+                ui.submitButton.disabled = true;
+                
+                try {
+                    extractedText = await extractPdfText(file);
+                    ui.submitButton.innerHTML = '<span>Uploader et Analyser</span><i class="fas fa-magic"></i>';
+                    ui.submitButton.disabled = false;
+                } catch (error) {
+                    console.error(error);
+                    showMessage("Erreur lecture PDF. Fichier corrompu ?", true);
+                    selectedFile = null;
+                }
+            }
+        });
+
+        ui.removeFileBtn.addEventListener('click', () => {
+            selectedFile = null;
+            extractedText = "";
+            ui.fileInput.value = '';
+            ui.previewContainer.classList.add('hidden');
+            ui.dropZone.classList.remove('hidden');
+            ui.submitButton.disabled = true;
+        });
+
+        ui.uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!selectedFile || !currentUserId) return;
+
+            ui.submitButton.disabled = true;
+            ui.progressContainer.classList.remove('hidden');
+            ui.statusText.textContent = "Upload vers le Cloud...";
+
+            const newCourseRef = doc(collection(db, 'users', currentUserId, 'courses'));
+            const storageRef = ref(storage, `users/${currentUserId}/courses/${newCourseRef.id}/${selectedFile.name}`);
+            const uploadTask = uploadBytesResumable(storageRef, selectedFile);
+
+            uploadTask.on('state_changed', 
+                (snap) => {
+                    const progress = (snap.bytesTransferred / snap.totalBytes) * 100;
+                    ui.progressBar.style.width = progress + '%';
+                    ui.progressText.textContent = Math.round(progress) + '%';
+                },
+                (error) => {
+                    console.error(error);
+                    showMessage("Erreur upload.", true);
+                    ui.submitButton.disabled = false;
+                },
+                async () => {
+                    ui.statusText.textContent = "Sauvegarde des données...";
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    
+                    await setDoc(newCourseRef, {
+                        title: ui.courseNameInput.value,
+                        fileName: selectedFile.name,
+                        fileURL: downloadURL,
+                        textContent: extractedText, // Crucial for Gemini
+                        uploadedAt: serverTimestamp(),
+                        size: selectedFile.size,
+                        type: 'pdf'
+                    });
+
+                    showMessage("Succès ! Redirection...", false);
+                    setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                }
+            );
+        });
+    </script>
+</body>
+</html>

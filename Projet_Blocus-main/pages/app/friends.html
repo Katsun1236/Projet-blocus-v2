@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Amis - Projet Blocus</title>
+    <link rel="icon" type="image/png" href="../../assets/images/logo.png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    
+    <style>
+        .sidebar-glass {
+            background: rgba(5, 5, 5, 0.6);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .content-glass {
+            background: rgba(20, 20, 20, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: #fff;
+            border-left: 3px solid #6366f1;
+        }
+        .nav-item:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.03);
+            color: #e5e7eb;
+        }
+        /* Styles spécifiques Amis */
+        .friend-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .friend-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body class="relative selection:bg-indigo-500 selection:text-white overflow-hidden h-screen flex bg-[#050505]">
+
+    <!-- FOND ANIMÉ -->
+    <div class="noise-overlay"></div>
+    <div class="glow-bg" style="top: -20%; left: 30%; background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);"></div>
+    <div class="glow-bg" style="bottom: -10%; right: -10%; background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="w-72 sidebar-glass flex-shrink-0 hidden md:flex flex-col z-20 relative">
+        <div class="p-6 flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 bg-white text-black rounded-lg flex items-center justify-center font-bold text-lg tracking-tighter">
+                B.
+            </div>
+            <span class="font-display font-bold text-lg tracking-wide text-white">Projet Blocus</span>
+        </div>
+
+        <nav class="flex-grow px-4 space-y-2">
+            <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Menu Principal</p>
+            <a href="dashboard.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-th-large w-6 group-hover:text-indigo-400 transition-colors"></i>
+                <span class="font-medium">Tableau de Bord</span>
+            </a>
+            <a href="courses.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-book w-6 group-hover:text-indigo-400 transition-colors"></i>
+                <span class="font-medium">Mes Cours</span>
+            </a>
+            <a href="quiz.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-brain w-6 group-hover:text-purple-400 transition-colors"></i>
+                <span class="font-medium">Quiz IA</span>
+            </a>
+            <a href="planning.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-calendar-alt w-6 group-hover:text-emerald-400 transition-colors"></i>
+                <span class="font-medium">Planning</span>
+            </a>
+
+            <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mt-8 mb-2">Outils</p>
+            <a href="synthesize.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-magic w-6 group-hover:text-indigo-400 transition-colors"></i>
+                <span class="font-medium">Synthétiseur</span>
+            </a>
+
+            <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mt-8 mb-2">Communauté</p>
+            <a href="#" class="nav-item active flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-user-friends w-6 group-hover:text-pink-400 transition-colors"></i>
+                <span class="font-medium">Mes Amis</span>
+            </a>
+            <a href="chat.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-paper-plane w-6 group-hover:text-blue-400 transition-colors"></i>
+                <span class="font-medium">Discussions</span>
+            </a>
+            <a href="community.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-globe w-6 group-hover:text-indigo-400 transition-colors"></i>
+                <span class="font-medium">Communauté</span>
+            </a>
+            <a href="forum.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-comments w-6 group-hover:text-pink-400 transition-colors"></i>
+                <span class="font-medium">Forum</span>
+            </a>
+            
+            <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mt-8 mb-2">Personnel</p>
+            <a href="profile.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-400 transition-all duration-200 group">
+                <i class="fas fa-user-circle w-6 group-hover:text-indigo-400 transition-colors"></i>
+                <span class="font-medium">Mon Profil</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-gray-800">
+            <button id="logout-button" class="w-full flex items-center px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors group">
+                <i class="fas fa-sign-out-alt w-6 group-hover:text-red-500 transition-colors"></i>
+                <span class="font-medium">Déconnexion</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-grow flex flex-col min-w-0 relative z-10">
+        
+        <!-- Header Mobile -->
+        <header class="h-16 md:hidden border-b border-gray-800/50 flex items-center justify-between px-6 bg-gray-900/30 backdrop-blur-sm">
+            <div class="flex items-center gap-4">
+                <button class="text-gray-400 hover:text-white"><i class="fas fa-bars text-xl"></i></button>
+                <span class="font-bold text-lg text-white">Mes Amis</span>
+            </div>
+        </header>
+
+        <main class="flex-grow p-6 md:p-10 overflow-y-auto">
+            
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
+                    <div>
+                        <h1 class="text-3xl font-display font-bold text-white mb-2">Cercle d'Amis</h1>
+                        <p class="text-gray-400">Gère tes relations et reste connecté.</p>
+                    </div>
+                    <a href="community.html" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl transition-colors flex items-center gap-2">
+                        <i class="fas fa-search"></i>
+                        <span>Trouver des amis</span>
+                    </a>
+                </div>
+
+                <!-- SECTION: DEMANDES D'AMIS -->
+                <section id="friend-requests-section" class="mb-12 hidden">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="fas fa-user-clock text-yellow-400"></i> En attente
+                        <span id="requests-count-badge" class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full ml-2">0</span>
+                    </h2>
+                    <div id="friend-requests-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Cartes demandes injectées ici -->
+                    </div>
+                </section>
+
+                <!-- SECTION: LISTE D'AMIS -->
+                <section id="friends-list-section">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="fas fa-user-check text-emerald-400"></i> Mes Amis
+                    </h2>
+                    
+                    <div id="friends-loading" class="flex justify-center py-10">
+                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+                    </div>
+
+                    <div id="friends-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Cartes amis injectées ici -->
+                    </div>
+                    
+                    <div id="no-friends" class="hidden text-center py-20 content-glass rounded-2xl border border-dashed border-gray-700">
+                        <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl text-gray-600">
+                            <i class="fas fa-users-slash"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">C'est calme ici...</h3>
+                        <p class="text-gray-400 mb-6">Ajoute des amis pour voir leurs activités et discuter.</p>
+                        <a href="community.html" class="text-indigo-400 hover:text-indigo-300 font-medium">Explorer la communauté</a>
+                    </div>
+                </section>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Message Box -->
+    <div id="message-box" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- JAVASCRIPT -->
+    <script type="module">
+        import { auth, db } from '../../assets/js/config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { doc, getDoc, collection, onSnapshot, query, where, updateDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        let currentUserId = null;
+
+        const ui = {
+            requestsSection: document.getElementById('friend-requests-section'),
+            requestsList: document.getElementById('friend-requests-list'),
+            requestsBadge: document.getElementById('requests-count-badge'),
+            friendsList: document.getElementById('friends-list'),
+            friendsLoading: document.getElementById('friends-loading'),
+            noFriends: document.getElementById('no-friends'),
+            logoutButton: document.getElementById('logout-button'),
+        };
+
+        function showMessage(message, isError = false) {
+            const box = document.createElement('div');
+            box.className = `p-4 rounded-xl shadow-2xl text-white flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-500 pointer-events-auto border ${isError ? 'bg-gray-900 border-red-500/30' : 'bg-gray-900 border-green-500/30'}`;
+            box.innerHTML = `
+                <div class="${isError ? 'text-red-400' : 'text-green-400'} text-xl"><i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i></div>
+                <p class="font-medium text-sm">${message}</p>
+            `;
+            document.getElementById('message-box').appendChild(box);
+            requestAnimationFrame(() => { box.classList.remove('translate-y-10', 'opacity-0'); });
+            setTimeout(() => { box.classList.add('translate-y-10', 'opacity-0'); setTimeout(() => box.remove(), 500); }, 4000);
+        }
+
+        async function fetchUser(userId) {
+            if (!userId) return null;
+            const userRef = doc(db, 'users', userId);
+            const userSnap = await getDoc(userRef);
+            return userSnap.exists() ? { id: userSnap.id, ...userSnap.data() } : null;
+        }
+
+        async function renderRequests(requests) {
+            ui.requestsList.innerHTML = '';
+            
+            if (requests.length > 0) {
+                ui.requestsSection.classList.remove('hidden');
+                ui.requestsBadge.textContent = requests.length;
+                
+                for (const req of requests) {
+                    const profile = await fetchUser(req.otherUserId);
+                    if (!profile) continue;
+                    
+                    const el = document.createElement('div');
+                    el.className = 'content-glass p-5 rounded-2xl border border-gray-800 hover:bg-gray-800/50 transition-all flex flex-col items-center text-center friend-card';
+                    el.innerHTML = `
+                        <a href="view-profile.html?id=${profile.id}" class="cursor-pointer">
+                            <img src="${profile.photoURL || 'https://ui-avatars.com/api/?background=random'}" class="w-16 h-16 rounded-full object-cover border-2 border-gray-700 mb-3">
+                        </a>
+                        <h3 class="font-bold text-white text-lg mb-1 truncate w-full">${profile.firstName} ${profile.lastName}</h3>
+                        <p class="text-xs text-gray-400 mb-4">${profile.school || 'École inconnue'}</p>
+                        <div class="flex gap-2 w-full">
+                            <button data-id="${req.id}" class="accept-btn flex-1 py-2 bg-green-600/20 text-green-400 hover:bg-green-600 hover:text-white text-xs font-bold rounded-lg transition-colors border border-green-600/30">Accepter</button>
+                            <button data-id="${req.id}" class="decline-btn flex-1 py-2 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white text-xs font-bold rounded-lg transition-colors border border-red-600/30">Refuser</button>
+                        </div>
+                    `;
+                    ui.requestsList.appendChild(el);
+                }
+            } else {
+                ui.requestsSection.classList.add('hidden');
+            }
+        }
+
+        async function renderFriends(friends) {
+            ui.friendsList.innerHTML = '';
+            ui.friendsLoading.classList.add('hidden');
+            
+            if (friends.length === 0) {
+                ui.noFriends.classList.remove('hidden');
+            } else {
+                ui.noFriends.classList.add('hidden');
+                for (const friend of friends) {
+                    const profile = await fetchUser(friend.otherUserId);
+                    if (!profile) continue;
+                    
+                    const el = document.createElement('div');
+                    el.className = 'content-glass p-5 rounded-2xl border border-gray-800 hover:border-indigo-500/30 transition-all group flex items-center gap-4 friend-card';
+                    el.innerHTML = `
+                        <a href="view-profile.html?id=${profile.id}" class="cursor-pointer flex-shrink-0">
+                            <div class="relative">
+                                <img src="${profile.photoURL || 'https://ui-avatars.com/api/?background=random'}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-700 group-hover:border-indigo-500 transition-colors bg-gray-800">
+                                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-gray-900 rounded-full" title="En ligne"></div>
+                            </div>
+                        </a>
+                        <div class="flex-grow min-w-0">
+                            <a href="view-profile.html?id=${profile.id}"><h3 class="font-bold text-white text-lg truncate hover:text-indigo-400">${profile.firstName} ${profile.lastName}</h3></a>
+                            <p class="text-xs text-gray-400 truncate">${profile.school || 'École inconnue'}</p>
+                        </div>
+                        <a href="chat.html?with=${friend.otherUserId}" class="p-3 bg-gray-800 hover:bg-indigo-600 text-gray-400 hover:text-white rounded-xl transition-colors shadow-lg flex-shrink-0" title="Envoyer un message">
+                            <i class="fas fa-comment-alt"></i>
+                        </a>
+                        <button class="remove-friend-btn p-3 bg-gray-800 hover:bg-red-600 text-gray-400 hover:text-white rounded-xl transition-colors shadow-lg flex-shrink-0" data-id="${friend.id}" title="Retirer des amis">
+                            <i class="fas fa-user-minus"></i>
+                        </button>
+                    `;
+                    ui.friendsList.appendChild(el);
+                }
+            }
+        }
+
+        // --- Handlers ---
+        ui.requestsList.addEventListener('click', async e => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            
+            const friendshipId = btn.dataset.id;
+            if (!friendshipId) return;
+
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                if (btn.classList.contains('accept-btn')) {
+                    await updateDoc(doc(db, 'friendships', friendshipId), { status: 'friends' });
+                    showMessage("Ami ajouté !");
+                } else if (btn.classList.contains('decline-btn')) {
+                    await deleteDoc(doc(db, 'friendships', friendshipId));
+                    showMessage("Demande refusée.");
+                }
+            } catch (error) {
+                console.error("Erreur action ami:", error);
+                showMessage("Erreur lors de l'action.", true);
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        });
+
+        ui.friendsList.addEventListener('click', async e => {
+            const btn = e.target.closest('.remove-friend-btn');
+            if (!btn) return;
+            
+            const friendshipId = btn.dataset.id;
+            if (!friendshipId || !confirm("Retirer cette personne de vos amis ?")) return;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                await deleteDoc(doc(db, 'friendships', friendshipId));
+                showMessage("Ami retiré.");
+            } catch (error) {
+                console.error("Erreur suppression ami:", error);
+                showMessage("Erreur lors de la suppression.", true);
+                btn.innerHTML = '<i class="fas fa-user-minus"></i>';
+                btn.disabled = false;
+            }
+        });
+
+
+        document.getElementById('logout-button').addEventListener('click', async () => { 
+            await signOut(auth); 
+            window.location.href = '../../index.html'; 
+        });
+
+        // --- Auth & Init ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user && !user.isAnonymous) {
+                currentUserId = user.uid;
+                
+                const friendshipsRef = collection(db, 'friendships');
+                // Query pour trouver toutes les relations où l'utilisateur est impliqué
+                const q = query(friendshipsRef, where('users', 'array-contains', currentUserId));
+
+                onSnapshot(q, async (snapshot) => {
+                    const requests = [];
+                    const friends = [];
+                    
+                    snapshot.forEach(doc => {
+                        const data = { id: doc.id, ...doc.data() };
+                        const otherUserId = data.users.find(id => id !== currentUserId);
+                        
+                        if (data.status === 'pending' && data.requestedTo === currentUserId) {
+                            // C'est une demande que j'ai reçue
+                            requests.push({ ...data, otherUserId });
+                        } else if (data.status === 'friends') {
+                            // C'est un ami confirmé
+                            friends.push({ ...data, otherUserId });
+                        }
+                    });
+
+                    await renderRequests(requests);
+                    await renderFriends(friends);
+                }, (error) => {
+                    console.error("Erreur de l'écouteur d'amitié:", error);
+                    showMessage("Erreur de connexion aux données sociales.", true);
+                });
+            } else {
+                window.location.href = '../auth/login.html';
+            }
+        });
+    </script>
+</body>
+</html>

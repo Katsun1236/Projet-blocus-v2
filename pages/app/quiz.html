@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz IA - Projet Blocus</title>
+    <link rel="icon" type="image/png" href="../../assets/images/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body class="relative bg-[#050505] text-white h-screen flex overflow-hidden">
+
+    <!-- Simplified Sidebar -->
+    <aside class="w-20 md:w-64 bg-gray-900/50 border-r border-white/5 flex flex-col z-20">
+        <div class="p-4 flex justify-center md:justify-start items-center gap-3">
+            <div class="w-8 h-8 bg-white text-black rounded flex items-center justify-center font-bold">B.</div>
+            <span class="hidden md:block font-bold">Blocus</span>
+        </div>
+        <nav class="flex-1 space-y-2 p-2">
+            <a href="dashboard.html" class="flex items-center p-3 text-gray-400 hover:bg-white/5 rounded-lg"><i class="fas fa-th-large text-xl"></i><span class="hidden md:block ml-3">Dashboard</span></a>
+            <a href="courses.html" class="flex items-center p-3 text-gray-400 hover:bg-white/5 rounded-lg"><i class="fas fa-book text-xl"></i><span class="hidden md:block ml-3">Cours</span></a>
+            <a href="#" class="flex items-center p-3 bg-indigo-600 text-white rounded-lg"><i class="fas fa-brain text-xl"></i><span class="hidden md:block ml-3">Quiz</span></a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 flex flex-col relative">
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
+        
+        <main class="p-6 overflow-y-auto flex-1">
+            
+            <!-- Generator View -->
+            <div id="generator-view" class="max-w-3xl mx-auto">
+                <h1 class="text-3xl font-bold mb-8 text-center">Générateur de Quiz</h1>
+                
+                <div class="bg-gray-900/50 border border-white/10 p-8 rounded-3xl backdrop-blur-md">
+                    <form id="quiz-form" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold mb-2 text-gray-300">Titre</label>
+                            <input type="text" id="quiz-title" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 focus:border-indigo-500 outline-none" placeholder="Ex: Révision Droit" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold mb-2 text-gray-300">Source (Cours)</label>
+                            <select id="course-select" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 focus:border-indigo-500 outline-none" required>
+                                <option value="">Chargement...</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold mb-2 text-gray-300">Questions</label>
+                                <input type="number" id="q-count" value="5" min="1" max="20" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2 text-gray-300">Difficulté</label>
+                                <select id="q-diff" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 outline-none">
+                                    <option value="Easy">Facile</option>
+                                    <option value="Medium" selected>Moyen</option>
+                                    <option value="Hard">Difficile</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="generate-btn" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-lg transition-all shadow-lg shadow-indigo-900/50">
+                            <i class="fas fa-bolt mr-2"></i> Générer le Quiz
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Player View -->
+            <div id="player-view" class="hidden max-w-2xl mx-auto h-full flex flex-col justify-center">
+                <div class="mb-6 flex justify-between items-center">
+                    <span class="text-indigo-400 font-bold" id="progress-text">Question 1/5</span>
+                    <button id="quit-btn" class="text-gray-500 hover:text-white">Quitter</button>
+                </div>
+
+                <div id="question-card" class="bg-gray-900/80 border border-white/10 p-8 rounded-3xl shadow-2xl min-h-[300px] flex flex-col">
+                    <h2 id="question-text" class="text-2xl font-bold mb-6">Loading...</h2>
+                    <div id="options-container" class="space-y-3 flex-1"></div>
+                    <div id="explanation" class="mt-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-xl text-blue-200 text-sm hidden"></div>
+                    <button id="next-btn" class="mt-6 w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold hidden">Suivant</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script type="module">
+        import { auth, db } from '../../assets/js/config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { generateQuizOrFlashcards } from '../../assets/js/ai.js';
+
+        let userCourses = [];
+        let currentQuiz = null;
+        let currentIndex = 0;
+        let score = 0;
+
+        const ui = {
+            generator: document.getElementById('generator-view'),
+            player: document.getElementById('player-view'),
+            form: document.getElementById('quiz-form'),
+            courseSelect: document.getElementById('course-select'),
+            generateBtn: document.getElementById('generate-btn'),
+            questionText: document.getElementById('question-text'),
+            optionsContainer: document.getElementById('options-container'),
+            nextBtn: document.getElementById('next-btn'),
+            progressText: document.getElementById('progress-text'),
+            explanation: document.getElementById('explanation'),
+            quitBtn: document.getElementById('quit-btn')
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if(user) {
+                const snap = await getDocs(collection(db, 'users', user.uid, 'courses'));
+                userCourses = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                ui.courseSelect.innerHTML = userCourses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+            } else window.location.href = '../auth/login.html';
+        });
+
+        ui.form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const courseId = ui.courseSelect.value;
+            const course = userCourses.find(c => c.id === courseId);
+            
+            if(!course || !course.textContent) return alert("Ce cours ne contient pas de texte analysable.");
+
+            ui.generateBtn.disabled = true;
+            ui.generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création...';
+
+            try {
+                const count = document.getElementById('q-count').value;
+                const diff = document.getElementById('q-diff').value;
+                
+                const data = await generateQuizOrFlashcards(course.textContent, count, diff, 'QCM');
+                
+                currentQuiz = data.quiz;
+                currentIndex = 0;
+                score = 0;
+                
+                // Start Game
+                ui.generator.classList.add('hidden');
+                ui.player.classList.remove('hidden');
+                renderQuestion();
+
+                // Save to history
+                await addDoc(collection(db, 'users', auth.currentUser.uid, 'quizzes'), {
+                    title: document.getElementById('quiz-title').value,
+                    content: data.quiz,
+                    type: 'QCM',
+                    createdAt: serverTimestamp()
+                });
+
+            } catch(err) {
+                console.error(err);
+                alert("Erreur AI");
+            } finally {
+                ui.generateBtn.disabled = false;
+                ui.generateBtn.innerHTML = '<i class="fas fa-bolt mr-2"></i> Générer le Quiz';
+            }
+        });
+
+        function renderQuestion() {
+            const q = currentQuiz[currentIndex];
+            ui.questionText.textContent = q.question;
+            ui.optionsContainer.innerHTML = '';
+            ui.explanation.classList.add('hidden');
+            ui.nextBtn.classList.add('hidden');
+            ui.progressText.textContent = `Question ${currentIndex + 1}/${currentQuiz.length}`;
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 bg-black/40 border border-white/10 rounded-xl hover:bg-white/10 transition-all";
+                btn.textContent = opt;
+                btn.onclick = () => handleAnswer(btn, opt, q.answer, q.explanation);
+                ui.optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(btn, selected, correct, explanation) {
+            // Disable all buttons
+            Array.from(ui.optionsContainer.children).forEach(b => b.disabled = true);
+            
+            const isCorrect = selected.trim().toLowerCase() === correct.trim().toLowerCase(); // Simple string match
+            if(isCorrect) {
+                btn.classList.add('bg-green-600', 'border-green-500');
+                score++;
+            } else {
+                btn.classList.add('bg-red-600', 'border-red-500');
+                // Highlight correct one (simple check)
+                Array.from(ui.optionsContainer.children).find(b => b.textContent.includes(correct))?.classList.add('bg-green-600/50');
+            }
+
+            ui.explanation.textContent = explanation || (isCorrect ? "Correct !" : `La bonne réponse était : ${correct}`);
+            ui.explanation.classList.remove('hidden');
+            ui.nextBtn.classList.remove('hidden');
+        }
+
+        ui.nextBtn.addEventListener('click', () => {
+            currentIndex++;
+            if(currentIndex < currentQuiz.length) {
+                renderQuestion();
+            } else {
+                alert(`Quiz terminé ! Score: ${score}/${currentQuiz.length}`);
+                location.reload();
+            }
+        });
+
+        ui.quitBtn.addEventListener('click', () => location.reload());
+
+    </script>
+</body>
+</html>
