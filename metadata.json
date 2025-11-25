@@ -1,8 +1,4 @@
 {
   "name": "Projet Blocus React",
-  "description": "A modernized, bug-free React version of the Projet Blocus e-learning platform with Gemini AI integration.",
-  "requestFramePermissions": [
-    "camera",
-    "microphone"
-  ]
+  "description": "A modernized, bug-free React version of the Projet Blocus e-learning platform with Gemini AI integration."
 }
